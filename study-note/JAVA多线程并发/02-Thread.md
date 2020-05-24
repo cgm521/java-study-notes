@@ -23,8 +23,7 @@
 | Thread.interrupt() | 线程中断，给线程一个通知信号，会影响这个线程内部的中断标示位，线程并不会立刻中断正在运行的线程。<br />在线程的 run 方法内部可以根据thread.isInterrupted()的值来优雅的终止线程 | 线程状态不会立刻改变 |  |
 | Object.join(Thread) | 当前线程转为阻塞状态，另一个线程结束后，当前线程由阻塞->就绪，重新竞争CPU时间片 | RUNNING-BLOCKED->RUNNABLE | 释放锁 |
 | Object.notify() | 唤醒在此对象监视器上等待的单个线程 | BLOCKED-RUNNABLE |  |
-| Object.notifyAll() | 唤醒在此监视器上等待的所有线程<br />
-	 | BLOCKED-RUNNABLE |  |
+| Object.notifyAll() | 唤醒在此监视器上等待的所有线程 	 | BLOCKED-RUNNABLE |  |
 
 
 

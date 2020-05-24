@@ -6,7 +6,7 @@
 
 ```java
 public static void main(String[] args) {
-  	AtomicInteger integer = new AtomicInteger(0);   // V的值为0
+    AtomicInteger integer = new AtomicInteger(0);   // V的值为0
     System.out.println(integer.getAndIncrement());  // 打印 0 V的值为1
     System.out.println(integer.get());				// 打印 1
 }
