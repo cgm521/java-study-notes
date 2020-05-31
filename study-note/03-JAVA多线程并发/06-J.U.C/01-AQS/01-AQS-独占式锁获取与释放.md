@@ -520,3 +520,6 @@ private boolean doAcquireNanos(int arg, long nanosTimeout)
 ```
 
 <br />tryAcquireNanos是acquireInterruptibly方法的增强，**除了响应中断，还有超时控制**。即如果没有在指定时间内获取到同步状态，则返回false，否则返回true。<br />如果休眠时间大于spinForTimeoutThreshold，则休眠等待，否则，不休眠，进行快速自旋，因为1000ns已经是非常小了，非常短的时间等待无法做到精准，所以在超时非常短的场景下，AQS会进行无条件的快速自旋
+
+
+[下一篇：02-AQS-共享式锁获取与释放.md](02-AQS-共享式锁获取与释放.md)

@@ -281,3 +281,5 @@ ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存Ob
 <a name="57nXj"></a>
 # 参考
 [深入分析synchronized的实现原理](http://cmsblogs.com/?p=2071)<br />[深入理解Java并发之synchronized实现原理](https://blog.csdn.net/javazejian/article/details/72828483)<br />[彻底搞懂synchronized(从偏向锁到重量级锁)](https://www.cnblogs.com/kubidemanong/p/9520071.html)
+
+[下一篇：04-volatile.md](04-volatile.md)
