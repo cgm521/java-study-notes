@@ -33,7 +33,7 @@ public class com.example.cgm.juc.SynchronizedTest
     flags: (0x0001) ACC_PUBLIC
 
   public com.example.cgm.juc.SynchronizedTest();
-
+  
   public synchronized void test1();
     descriptor: ()V
     //方法标识ACC_PUBLIC代表public修饰，ACC_SYNCHRONIZED指明该方法为同步方法
@@ -151,10 +151,10 @@ ObjectMonitor() {
     OwnerIsThread = 0 ;
   }
 ```
-ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存ObjectWaiter对象列表(每个等待锁的线程会被封装成ObjectWaiter对象)，**_owner**指向持有ObjectMonitor对象的线程。当多个线程同时访问一段代码时，首先会进入**_EntryList**，当线程获取到对象的**monitor**后，进入**_owner**区域，并把**_owner**设置为当前线程，同时**_count**加1，若线程调用wait()方法，则释放当前持有的monitor，**_owner**变量变为null，**_count**减1，同时该线程进入**_WaitSet**，等待被唤醒，若当前线程执行完毕，也将释放**monitor**，并复位变量。<br />![image.png](https://cdn.nlark.com/yuque/0/2019/png/261655/1572515664853-b75bed44-60b5-4a5f-b727-14473fe25df9.png#align=left&display=inline&height=318&name=image.png&originHeight=424&originWidth=697&size=200503&status=done&style=none&width=523)
+ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存ObjectWaiter对象列表(每个等待锁的线程会被封装成ObjectWaiter对象)，**_owner**指向持有ObjectMonitor对象的线程。当多个线程同时访问一段代码时，首先会进入**_EntryList**，当线程获取到对象的**monitor**后，进入**_owner**区域，并把**_owner**设置为当前线程，同时**_count**加1，若线程调用wait()方法，则释放当前持有的monitor，**_owner**变量变为null，**_count**减1，同时该线程进入**_WaitSet**，等待被唤醒，若当前线程执行完毕，也将释放**monitor**，并复位变量。<br />![image.png](https://cdn.nlark.com/yuque/0/2019/png/261655/1572515664853-b75bed44-60b5-4a5f-b727-14473fe25df9.png#align=left&display=inline&height=318&margin=%5Bobject%20Object%5D&name=image.png&originHeight=424&originWidth=697&size=200503&status=done&style=none&width=523)
 
 <a name="fK6d3"></a>
-#
+# 
 
 ---
 
@@ -164,13 +164,13 @@ ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存Ob
 ## synchronized代码块
 由上面的字节码可以看出synchronized代码块是通过monitorenter和monitorexit指令实现的。<br />当执行monitorenter指令时，当前线程将尝试获取object所对应的monitor的持有权，如果该object的monitor的计数器为0，那么线程获取monitor成功，并设置owner为当前线程，计数器为1，获取锁成功。<br />如果当前线程已经获取object的monitor的持有权，那么它可以重入这个monitor，重入时，计数器加1。<br />如果其他线程已经拥有object的monitor的持有权，当前线程将被阻塞，直到其他线程释放monitor，即执行monitorexit指令，执行线程释放monitor，并将owner设为null，计数器置为0，其他线程将有机会竞争monitor。<br />编译器会确保每个monitorenter都有对应的monitorexit指令，不论是正常执行完还是异常情况。编译器会自动产生一个异常处理器，声明为处理所有异常，就是为了在异常情况下，执行monitorexit指令，确保monitor被释放。从字节码中也可以看出多了一个monitorexit。
 <a name="Ns9a4"></a>
-##
+## 
 <a name="fvxxt"></a>
 ## synchronized方法
 方法级是隐式的，即无需monitorenter和monitorexit指令来控制，他是实现在方法调用和返回操作中。<br />JVM通过方法表结构中是否有ACC_SYNCHROIZED访问标示区分一个方法是否是同步方法，当方法调用时，检查访问标示是否被设置，如果被设置，执行线程先持有mointor，然后再执行方法。方法执行完的时候，释放monitor。在方法执行过程中，其他任何线程都无法在持有同一个monitor。如果方法执行异常，则会在异常抛出之时，自动释放monitor。<br />
 <br />早期synchronized效率低低原因是，监视器锁是依赖与底层操作系统的Mutex Lock来实现的，而操作系统实现线程切换需要从用户态切换到核心态，这个状态到转换耗时较长。java6以后从jvm层面对synchronized实现了优化，引入了偏向锁和轻量级锁。
 <a name="qgDDq"></a>
-#
+# 
 
 ---
 
@@ -209,7 +209,7 @@ ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存Ob
 1. 遍历线程栈，如果存在锁记录，则修复锁记录和MarkWord，置为无锁状态
 1. 唤醒当前线程，当前锁升级为轻量级锁
 > 偏向锁的撤销，需要等待全局安全点（在这个时间点上没有字节码正在执行），它会首先暂停拥有偏向锁的线程，然后检查持有偏向锁的线程是否活着，如果线程不处于活动状态，则将对象头设置成无锁状态，然后重新偏向新的线程；如果线程仍然活着，拥有偏向锁的栈会被执行，遍历偏向对象的锁记录，栈中的锁记录和对象头的
-> Mark Word，> 检查该对象的使用情况，如果仍然需要持有偏向锁，则偏向锁升级为轻量级锁，（> **偏向锁就是这个时候升级为轻量级锁的**> ）。如果不存在使用了，则可以将对象回复成无锁状态，然后重新偏向>
+> Mark Word，> 检查该对象的使用情况，如果仍然需要持有偏向锁，则偏向锁升级为轻量级锁，（> **偏向锁就是这个时候升级为轻量级锁的**> ）。如果不存在使用了，则可以将对象回复成无锁状态，然后重新偏向> 
 
 
 
@@ -243,6 +243,10 @@ ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存Ob
 
 
 <a name="sNOUj"></a>
+### ![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590745813129-8c6efccf-710d-4ff1-8e9e-526243aa4a20.png#align=left&display=inline&height=344&margin=%5Bobject%20Object%5D&name=image.png&originHeight=344&originWidth=721&size=47475&status=done&style=none&width=721)![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590745821295-60cdf890-9620-4077-a439-418809a424eb.png#align=left&display=inline&height=343&margin=%5Bobject%20Object%5D&name=image.png&originHeight=343&originWidth=549&size=39399&status=done&style=none&width=549)
+<a name="EpGGs"></a>
+### 
+<a name="6zBU9"></a>
 ### 释放锁
 释放锁也是提通过CAS实现的
 
@@ -270,7 +274,7 @@ ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存Ob
 <br />5.**在B线程的栈中分配锁记录，拷贝对象头中的MarkWord到锁记录中，然后将MarkWord改为指向B线程，同时将对象头中的锁标志信息改为轻量级锁的00，然后唤醒B线程**，也就是从安全点处继续执行。<br />
 <br />6.由于锁升级为轻量级锁，**A线程也进行相同的操作**，即，在A线程的栈中分配锁记录，拷贝对象头中的Mark Word到锁记录中，然后使用cas操作替换MarkWord，因为此时B线程拥有锁，因此，**A线程自旋**。如果自旋一定次数内成功获得锁，那么A线程获得轻量级锁，执行同步代码块。若自旋一定次数后仍未获得锁，A升级为重量级锁，将对象头中的锁标志信息改为重量级的10，同时阻塞，此时请看7.<br />
 <br />7.B线程在释放锁的时候，**使用cas将锁记录中Displaced Mark Word替换调MarkWord中的信息**，成功，则表示无竞争（这个时候还是轻量级锁，A线程可能正在自旋中）直接释放。失败（因为这个时候锁已经膨胀），那么**释放同时唤醒被挂起的线程**（在这个例子中，也就是A）。<br />
-<br />![untitled.jpg](https://cdn.nlark.com/yuque/0/2019/jpeg/261655/1573525984300-c7e80f17-9b98-42d3-8c24-8d73f82c0290.jpeg#align=left&display=inline&height=1621&name=untitled.jpg&originHeight=1621&originWidth=737&size=157176&status=done&style=none&width=737)
+<br />![untitled.jpg](https://cdn.nlark.com/yuque/0/2019/jpeg/261655/1573525984300-c7e80f17-9b98-42d3-8c24-8d73f82c0290.jpeg#align=left&display=inline&height=1621&margin=%5Bobject%20Object%5D&name=untitled.jpg&originHeight=1621&originWidth=737&size=157176&status=done&style=none&width=737)
 
 ---
 
