@@ -1,196 +1,242 @@
-# AQS
+# ThreadLocal
 
-<a name="sKanL"></a>
-# 简介
-
----
-
-
-<br />AQS(AbstractQueuedSynchronizer 队列同步器)是juc包中的并发工具基础，底层采用基于CAS的乐观锁，并在冲突的时候使用自旋的方式，实现轻量级和高效的获取锁。<br />
-<br />AQS虽然被设计为抽象类，但是所有的方法都不是抽象方法，因为AQS设计出来是要支持多种用途的，如果被设计成抽象方法，那子类在继承时就需要实现不必要的方法。所以AQS将一些需要被覆盖的方法设计为project，将默认实现抛出UnsupportedOperationException异常，子类需要的时候重写该方法即可。<br />
-<br />AQS中实现了锁的获取框架，采用模版方法模式，子类继承AQS类，把实际的锁获取逻辑在子类实现。就获取锁而言，子类必须实现tryAcquire方法。<br />
-<br />AQS支持独占锁(Exclusive)和共享锁(Share)两种模式:
-
-  - 独占锁：只能被一个线程获取到（ReantrantLock）
-  - 共享锁：可以被多个线程同时获取（CountDownLatch，Semaphone，ReadWriteLock的读锁）
-
-
-
-<a name="4MoQi"></a>
-### 状态
-
-<br />AQS使用一个int类型的成员变量state来代表同步的状态。state>0表示已经获取到锁，state = 0表示锁空闲。它提供了三个方法（getState()，setState(int newState)，compareAndSetState(int expact,int update)）来对同步状态操作，确保状态对所有线程可见(全局共享)，设置为volatile，并且AQS确保对其操作是线程安全的(锁竞争时期，采用compareAndSetState方法赋值，获取到锁以后，采用setState方法赋值，因为已经获取到锁，不存在竞争关系了)<br />
-
+<a name="CmCTY"></a>
+# 前奏
+我们先看下面这段代码，是在多线程环境下使用ThreadLocl的例子
 ```java
-private volatile int state;
-```
+public class ThreadLocalTest {
 
-<br />在独占模式中获取到锁后通过 setExclusiveOwnerThread(Thread thread) 方法把持有线程者设为当前线程，该变量exclusiveOwnerThread继承自AbstractOwnableSynchronizer<br />
-
-```java
-/**The current owner of exclusive mode synchronization.
-	独占模式同步锁的当前所有者。**/
-private transient Thread exclusiveOwnerThread;
-```
-
-
-<a name="mZQVt"></a>
-### 队列
-
-
-AQS通过一个内置的FIFO同步队列来完成资源获取线程的排队工作，它是一个双向链表，表示所有等待锁的线程的集合，如果当前线程获取同步状态失败，AQS会把当前线程及等待状态等信息包装成一个节点(Node)，并将其加入到阻塞队列中，同时阻塞当前队列，当同步状态释放时，会把当前节点唤醒，使其再次尝试获取同步状态。<br />
-
-```java
-static final class Node {
-        /** 共享模式 */
-        static final Node SHARED = new Node();
-        /** 独占模式 */
-        static final Node EXCLUSIVE = null;
-
-    	// 节点等待状态 start
-        /** 因为超时或中断，节点被设置为取消状态，取消状态的节点不会参与到竞争中 */
-        static final int CANCELLED =  1;
-        /**后继节点处于等待中，当前节点释放同步状态或被取消，将会通知后继节点，
-        *  使后继节点的线程可以运行 */
-        static final int SIGNAL    = -1;
-        /**节点在等待队列中，节点线程等待在Condition上，当其他线程对Condition调用了signal()后，
-        *  该节点将会从等待队列中转移到同步队列中，加入到同步状态的获取中
-   		*	共享模式中
-        */
-        static final int CONDITION = -2;
-        /**
-         * 表示下一次共享式同步状态获取将会无条件地传播下去
-         *	共享模式中
-         */
-        static final int PROPAGATE = -3;
-        // 节点等待状态end 以上四个静态常量值代表NODE节点的等待状态，后面遇到的时候会详细解释
-
-    	/**
-    	 * 等待状态
-    	 */
-        volatile int waitStatus;
-        /**
-         * 前驱节点
-         */
-        volatile Node prev;
-        /**
-         * 后继节点
-         */
-    	volatile Node next;
-        /**
-         * 获取同步状态的线程
-         */
-        volatile Thread thread;
-        /**
-         * 该属性用于代表条件队列或者共享锁
-         */
-        Node nextWaiter;
-
-        /**
-         * Returns true if node is waiting in shared mode.
-         */
-        final boolean isShared() {
-            return nextWaiter == SHARED;
+    private static ThreadLocal<Integer> threadLocal = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return 0;
         }
+    };
 
-        /**
-         * 获取前驱节点
-         */
-        final Node predecessor() throws NullPointerException {
-            Node p = prev;
-            if (p == null)
-                throw new NullPointerException();
-            else
-                return p;
+    public static void main(String[] args) {
+        Thread[] threads = new Thread[5];
+        for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread(() -> {
+                threadLocal.set(threadLocal.get()+1);
+                System.out.println(Thread.currentThread().getName() + ":" + threadLocal.get());
+            }, "Thread-" + i);
         }
-        Node() {    // Used to establish initial head or SHARED marker
-        }
-        Node(Thread thread, Node mode) {     // Used by addWaiter
-            this.nextWaiter = mode;
-            this.thread = thread;
-        }
-        Node(Thread thread, int waitStatus) { // Used by Condition
-            this.waitStatus = waitStatus;
-            this.thread = thread;
+        for (Thread thread : threads) {
+            thread.start();
         }
     }
+}
 ```
+执行结果：<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590666144375-a38092ed-5529-4cdc-9295-793c2416770a.png#align=left&display=inline&height=227&margin=%5Bobject%20Object%5D&name=image.png&originHeight=227&originWidth=698&size=136986&status=done&style=none&width=698)<br />每个线程调用的都是同一个ThreadLocal对象，但是get的结果却看似和ThreadLocal无关，各个线程get出来的值像是相互隔离开的一样，这是为什么呢？<br />
 
-
-<a name="1Y3oW"></a>
-### CAS
-
-
+<a name="u2kty"></a>
+# 概述
+ThreadLocal提供一个线程局部变量，访问某个变量的每个线程都能拥有自己的一个局部变量。ThreadLocal可以在多线程环境下保证局部变量的安全<br />ThreadLocal内部有个**内部类ThreadLocalMap**，ThreadLocalMap内部有个内部类Entry，Entry存储着一对键值对，key是ThreadLocal类型弱引用，value是Object类型数据。<br />先看一张图<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590667749212-7344172b-ff4f-47d2-8429-93280b0d3812.png#align=left&display=inline&height=496&margin=%5Bobject%20Object%5D&name=image.png&originHeight=496&originWidth=1011&size=120631&status=done&style=none&width=1011)<br />由上图可以看出，在Thread中持有一个ThreadLocalMap，ThreadLocalMap有属性table是个Entry数组，Entry的key是ThreadLocal类型，value是Object类型。也就是一个ThreadLocalMap可以持有多个ThreadLocal。也就是一个Thread包含一个ThreadLocalMap，包含多个ThreadLocal，**是Thread包含ThreadLocal**<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590667772709-5668146b-6782-4ef4-ab61-a4609fb2aabc.png#align=left&display=inline&height=481&margin=%5Bobject%20Object%5D&name=image.png&originHeight=481&originWidth=684&size=53729&status=done&style=none&width=684)
+<a name="Y9xiu"></a>
+# 源码解析
+<a name="rQFE1"></a>
+## set()
 ```java
-    private static final Unsafe unsafe = Unsafe.getUnsafe();
-    private static final long stateOffset;
-    private static final long headOffset;
-    private static final long tailOffset;
-    private static final long waitStatusOffset;
-    private static final long nextOffset;
+public void set(T value) {
+    // 获取当前线程
+    Thread t = Thread.currentThread();
+    // 获取当前线程的成员变量 thread.threadLocals
+    ThreadLocalMap map = getMap(t);
+    if (map != null)
+        // 设置ThreadLocalMap的entry的值
+        map.set(this, value);
+    else
+        createMap(t, value);
+}
+```
+ThreadLocalMap中的Entry是以当前ThreadLocal对象为key，具体set分析如下
+<a name="OscM7"></a>
+### ThreadLocalMap#set(ThreadLocal<?> key, Object value)
+```java
+private void set(ThreadLocal<?> key, Object value) {
+    Entry[] tab = table;
+    int len = tab.length;
+    int i = key.threadLocalHashCode & (len-1);
 
-    static {
-        try {
-            stateOffset = unsafe.objectFieldOffset
-                (AbstractQueuedSynchronizer.class.getDeclaredField("state"));
-            headOffset = unsafe.objectFieldOffset
-                (AbstractQueuedSynchronizer.class.getDeclaredField("head"));
-            tailOffset = unsafe.objectFieldOffset
-                (AbstractQueuedSynchronizer.class.getDeclaredField("tail"));
-            waitStatusOffset = unsafe.objectFieldOffset
-                (Node.class.getDeclaredField("waitStatus"));
-            nextOffset = unsafe.objectFieldOffset
-                (Node.class.getDeclaredField("next"));
+    // 采用开放定址法解决冲突
+    for (Entry e = tab[i];
+         e != null;
+         e = tab[i = nextIndex(i, len)]) {
+        ThreadLocal<?> k = e.get();
 
-        } catch (Exception ex) { throw new Error(ex); }
+        if (k == key) {
+            // 找到key，则赋值
+            e.value = value;
+            return;
+        }
+		// key == null，但是存在值（因为此处的e != null），说明之前的ThreadLocal对象已经被回收了
+        if (k == null) {
+            // 用新元素替换旧元素
+            replaceStaleEntry(key, value, i);
+            return;
+        }
     }
+
+    tab[i] = new Entry(key, value);
+    int sz = ++size;
+    // 清理key== null的Entry，如果不需要清理，请求元素数量大于阀值，则rehash(清理或者扩容)
+    if (!cleanSomeSlots(i, sz) && sz >= threshold)
+        rehash();
+}
+```
+<a name="1ypMs"></a>
+## get()
+```java
+public T get() {
+    // 获取当前线程
+    Thread t = Thread.currentThread();
+    // 获取当前线程的成员变量 thread.threadLocals
+    ThreadLocalMap map = getMap(t);
+    if (map != null) {
+        // 从当前线程的ThreadLocalMap获取Entry
+        ThreadLocalMap.Entry e = map.getEntry(this);
+        if (e != null) {
+            @SuppressWarnings("unchecked")
+            //获取目标值
+            T result = (T)e.value;
+            return result;
+        }
+    }
+    // ThreadLocalMap为空或者Entry为空，初始化变量
+    return setInitialValue();
+}
+```
+可以看出ThreadLocal中的实现是比较简单的，首先获取当前线程的成员变量threadLocals，然后从threadLocals中获取entry，如果为空，调用setInitialValue初始化变量<br />主要实现方法在map.getEntry(this)中，接下来我们来看一下ThreadLocalMap的getEntry方法
+<a name="bjGkN"></a>
+### 
+<a name="7rPz0"></a>
+### ThreadLocalMap#getEntry(ThreadLocal<?> key)
+```java
+private Entry getEntry(ThreadLocal<?> key) {
+    // 获取散列值
+    int i = key.threadLocalHashCode & (table.length - 1);
+    Entry e = table[i];
+    if (e != null && e.get() == key)
+        return e;
+    else
+        return getEntryAfterMiss(key, i, e);
+}
+
+// 遍历Entry数组，找到key为this的value，顺便清理key为null的值，并重新散列数组
+private Entry getEntryAfterMiss(ThreadLocal<?> key, int i, Entry e) {
+    Entry[] tab = table;
+    int len = tab.length;
+
+    while (e != null) {
+        ThreadLocal<?> k = e.get();
+        if (k == key)
+            return e;
+        if (k == null)
+            expungeStaleEntry(i);
+        else
+            i = nextIndex(i, len);
+        e = tab[i];
+    }
+    return null;
+}
+```
+<a name="O8owx"></a>
+## remove()
+```java
+public void remove() {
+    ThreadLocalMap m = getMap(Thread.currentThread());
+    if (m != null)
+        m.remove(this);
+}
+// ThreadLocalMap
+private void remove(ThreadLocal<?> key) {
+    Entry[] tab = table;
+    int len = tab.length;
+    int i = key.threadLocalHashCode & (len-1);
+    for (Entry e = tab[i];
+         e != null;
+         e = tab[i = nextIndex(i, len)]) {
+        if (e.get() == key) {
+            // entry.key = null
+            e.clear();
+            // 	清理key为null的entry，并重新散列数组
+            expungeStaleEntry(i);
+            return;
+        }
+    }
+}
+```
+<a name="9XnGR"></a>
+# 
+<a name="1Ptkc"></a>
+# 内存泄漏分析
+执行如下代码
+```java
+public class ThreadLocalTest {
+
+    private static final int THREAD_LOOP_SIZE = 500;
+    private static final int MOCK_DIB_DATA_LOOP_SIZE = 10000;
+
+    private static ThreadLocal<List<User>> threadLocal = new ThreadLocal<>();
+
+
+    public static void main(String[] args) {
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_LOOP_SIZE);
+
+        for (int i = 0; i < THREAD_LOOP_SIZE; i++) {
+            executorService.execute(() -> {
+                threadLocal.set(new ThreadLocalTest().addBigList());
+                Thread t = Thread.currentThread();
+                System.out.println(Thread.currentThread().getName());
+                //threadLocal.remove(); //不取消注释的话就可能出现OOM
+            });
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        //executorService.shutdown();
+    }
+
+    private List<User> addBigList() {
+        List<User> params = new ArrayList<>(MOCK_DIB_DATA_LOOP_SIZE);
+        for (int i = 0; i < MOCK_DIB_DATA_LOOP_SIZE; i++) {
+            params.add(new User("xuliugen", "password" + i, "男", i));
+        }
+        return params;
+    }
+    class User {
+        private String userName;
+        private String password;
+        private String sex;
+        private int age;
+
+        public User(String userName, String password, String sex, int age) {
+            this.userName = userName;
+            this.password = password;
+            this.sex = sex;
+            this.age = age;
+        }
+    }
+}
 ```
 
-<br />CAS主要针对5个属性，AQS的3个，state，head，tail，以及Node中2个，waiteState，next，说明者5个属性会被多线程访问，<br />CAS的具体操作是调用Unsafe中的方法，如果失败就自旋<br />
+- 第一次执行把17行注释，每次线程执行完后不会移除ThreadLocalMap中的Entry，就导致线程任务执行完成之后，还在持有ThreadLocalMap的引用，ThreadLocalMap里的Entry数组中的value一直强引用着list对象，导致线程数量执行较多的时候，堆内存就会急剧增加，导致OOM
 
-<a name="o8hBV"></a>
-# 主要方法
+![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590675160190-e2d00d02-b377-49cb-8fc0-14571bccbef2.png#align=left&display=inline&height=212&margin=%5Bobject%20Object%5D&name=image.png&originHeight=276&originWidth=962&size=431032&status=done&style=none&width=744)<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590675137430-7b62ced5-0dc9-438f-8458-9f76ff57ba48.png#align=left&display=inline&height=750&margin=%5Bobject%20Object%5D&name=image.png&originHeight=750&originWidth=900&size=232368&status=done&style=none&width=900)<br />
 
-
-
----
-
-
-
-- **getState()**：返回同步状态的当前值
-- **setState(int newState)**：设置当前同步状态值
-- **compareAndSetState(int expect, int update)**：使用CAS设置当前状态，可以保证状态设置的原子性
-- **tryAcquire(int arg)**：独占式获取同步锁，获取同步状态后，其他线程需要等待当前线程释放同步状态，才能获取同步状态，具体实现由自定义的队列同步器实现
-- **tryRelease(int arg)**：独占式释放同步状态，具体实现由自定义的队列同步器实现
-- **tryAcquireShare(int arg)**：共享式获取同步状态，返回值大于0表示获取成功，否则失败，具体实现由自定义的队列同步器实现
-- **tryReleaseShare(int arg)**：共享式释放同步状态，具体实现由自定义的队列同步器实现
-- **isHeldExclusively()**：当前同步器是否被当前线程独占，具体实现由自定义的队列同步器实现
-- **acquire(int arg)**：独占式获取同步状态，如果成功则返回，否则，把当前线程包装成节点放到同步队列中等待，该方法会调用子类重写的tryAcquire方法
-- **acquireInterruptibly(int arg)**：与acquire(int arg)方法相同，但是该方法响应中断，当前线程进入等待队列，如果线程中断，则会抛出异常InterruptedException并返回。(acquire方法会标记中断，不会影响自旋，会在线程获取到同步状态之后进行中断)
-- **tryAcquireNanos(int arg, long nanosTime)**：独占式超时获取同步状态，如果在nanosTime时间内没有获取到同步状态，则返回false，否则返回true
-- **acquireShared(int arg)**：共享式获取同步状态，如果未获取到同步状态，则会进入同步队列等待，与独占式到区别为，同一时刻可以由多个线程获取同步状态
-- **acquireSharedInterruptibly(int arg)**：共享式获取同步状态，响应中断
-- **acquireSharedNanos(int arg, long nanosTime)**：共享式获取同步状态，增加超时限制
-- **release(int arg)**：独占式释放同步状态，释放之后会唤醒同步队列中第一个等待节点
-- **relaseShare(int arg)**：共享式释放同步锁
-
-
-
-> **自定义同步器，继承AQS时需按需重写以下方法**
-> **tryAcquire**
-> **
-tryRelease**
-> **
-tryAcquireShared**
-> **
-tryReleaseShared**
-> **
-isHeldExclusively**
-> 上面每个方法默认实现都是throws UnsupportedOperationException，定义这些方法是使用AbstractQueuedSynchronizer的唯一途径。
+- 第二次执行是把17行注释去掉，每次线程任务执行完成后，都会调用ThreadLocal的remove方法移除Thread中的ThreadLOcalMap对ThreadLocal的引用，并清理value值，因为此时value的可以为null，在remove方法内会调用expungeStaleEntry去掉对value的引用，堆内存就不会一直增加，就不会导致OOM
 
 
 <br />
-<br />[**AQS-独占式锁获取&释放**](https://www.yuque.com/weijungu/sr03pz/fpv0p1)<br />[**AQS-共享式锁获取&释放**](https://www.yuque.com/weijungu/sr03pz/ob8ulg)
+<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590675305341-709e0b42-ac01-43cb-97a6-7923697ff8ea.png#align=left&display=inline&height=273&margin=%5Bobject%20Object%5D&name=image.png&originHeight=273&originWidth=625&size=216148&status=done&style=none&width=625)<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590675328866-63339ca3-c505-4d14-9ac2-74b209b5b3ce.png#align=left&display=inline&height=750&margin=%5Bobject%20Object%5D&name=image.png&originHeight=750&originWidth=900&size=271657&status=done&style=none&width=900)<br />
+<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590718471742-39a44c31-ab1f-482f-b38b-384027f0f0bd.png#align=left&display=inline&height=353&margin=%5Bobject%20Object%5D&name=image.png&originHeight=353&originWidth=780&size=64391&status=done&style=none&width=780)<br />
+
+> [https://www.jianshu.com/p/ee8c9dccc953](https://www.jianshu.com/p/ee8c9dccc953)
+> [https://juejin.im/post/5d9d74fa6fb9a04e320a56db](https://juejin.im/post/5d9d74fa6fb9a04e320a56db)
+> [http://cmsblogs.com/?p=2442](http://cmsblogs.com/?p=2442)
+> [https://blog.csdn.net/xlgen157387/article/details/78298840](https://blog.csdn.net/xlgen157387/article/details/78298840)
 
 
 [下一篇：AQS](06-J.U.C/01-AQS/00-AQS.md)
