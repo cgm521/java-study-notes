@@ -151,7 +151,7 @@ ObjectMonitor() {
     OwnerIsThread = 0 ;
   }
 ```
-ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存ObjectWaiter对象列表(每个等待锁的线程会被封装成ObjectWaiter对象)，**_owner**指向持有ObjectMonitor对象的线程。当多个线程同时访问一段代码时，首先会进入**_EntryList**，当线程获取到对象的**monitor**后，进入**_owner**区域，并把**_owner**设置为当前线程，同时**_count**加1，若线程调用wait()方法，则释放当前持有的monitor，**_owner**变量变为null，**_count**减1，同时该线程进入**_WaitSet**，等待被唤醒，若当前线程执行完毕，也将释放**monitor**，并复位变量。<br />![image.png](https://cdn.nlark.com/yuque/0/2019/png/261655/1572515664853-b75bed44-60b5-4a5f-b727-14473fe25df9.png#align=left&display=inline&height=318&margin=%5Bobject%20Object%5D&name=image.png&originHeight=424&originWidth=697&size=200503&status=done&style=none&width=523)
+ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存ObjectWaiter对象列表(每个等待锁的线程会被封装成ObjectWaiter对象)，**_owner**指向持有ObjectMonitor对象的线程。当多个线程同时访问一段代码时，首先会进入**_EntryList**，当线程获取到对象的**monitor**后，进入**_owner**区域，并把**_owner**设置为当前线程，同时**_count**加1，若线程调用wait()方法，则释放当前持有的monitor，**_owner**变量变为null，**_count**减1，同时该线程进入**_WaitSet**，等待被唤醒，若当前线程执行完毕，也将释放**monitor**，并复位变量。<br />![image.png](../99-picture/1572515664853-b75bed44-60b5-4a5f-b727-14473fe25df9.png)
 
 <a name="fK6d3"></a>
 # 
@@ -243,7 +243,7 @@ ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存Ob
 
 
 <a name="sNOUj"></a>
-### ![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590745813129-8c6efccf-710d-4ff1-8e9e-526243aa4a20.png#align=left&display=inline&height=344&margin=%5Bobject%20Object%5D&name=image.png&originHeight=344&originWidth=721&size=47475&status=done&style=none&width=721)![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590745821295-60cdf890-9620-4077-a439-418809a424eb.png#align=left&display=inline&height=343&margin=%5Bobject%20Object%5D&name=image.png&originHeight=343&originWidth=549&size=39399&status=done&style=none&width=549)
+### ![image.png](../99-picture/1590745813129-8c6efccf-710d-4ff1-8e9e-526243aa4a20.png)![image.png](../99-picture/1590745821295-60cdf890-9620-4077-a439-418809a424eb.png)
 <a name="EpGGs"></a>
 ### 
 <a name="6zBU9"></a>
@@ -274,12 +274,13 @@ ObjectMonitor中有两个队列，**_WaitSet**和**_EntryList**，用来保存Ob
 <br />5.**在B线程的栈中分配锁记录，拷贝对象头中的MarkWord到锁记录中，然后将MarkWord改为指向B线程，同时将对象头中的锁标志信息改为轻量级锁的00，然后唤醒B线程**，也就是从安全点处继续执行。<br />
 <br />6.由于锁升级为轻量级锁，**A线程也进行相同的操作**，即，在A线程的栈中分配锁记录，拷贝对象头中的Mark Word到锁记录中，然后使用cas操作替换MarkWord，因为此时B线程拥有锁，因此，**A线程自旋**。如果自旋一定次数内成功获得锁，那么A线程获得轻量级锁，执行同步代码块。若自旋一定次数后仍未获得锁，A升级为重量级锁，将对象头中的锁标志信息改为重量级的10，同时阻塞，此时请看7.<br />
 <br />7.B线程在释放锁的时候，**使用cas将锁记录中Displaced Mark Word替换调MarkWord中的信息**，成功，则表示无竞争（这个时候还是轻量级锁，A线程可能正在自旋中）直接释放。失败（因为这个时候锁已经膨胀），那么**释放同时唤醒被挂起的线程**（在这个例子中，也就是A）。<br />
-<br />![untitled.jpg](https://cdn.nlark.com/yuque/0/2019/jpeg/261655/1573525984300-c7e80f17-9b98-42d3-8c24-8d73f82c0290.jpeg#align=left&display=inline&height=1621&margin=%5Bobject%20Object%5D&name=untitled.jpg&originHeight=1621&originWidth=737&size=157176&status=done&style=none&width=737)
+<br />![untitled.jpg](../99-picture/1573525984300-c7e80f17-9b98-42d3-8c24-8d73f82c0290.jpeg)
 
 ---
 
 <a name="57nXj"></a>
-# 参考
-[深入分析synchronized的实现原理](http://cmsblogs.com/?p=2071)<br />[深入理解Java并发之synchronized实现原理](https://blog.csdn.net/javazejian/article/details/72828483)<br />[彻底搞懂synchronized(从偏向锁到重量级锁)](https://www.cnblogs.com/kubidemanong/p/9520071.html)
+> 引用
+>
+> [深入分析synchronized的实现原理](http://cmsblogs.com/?p=2071)<br />[深入理解Java并发之synchronized实现原理](https://blog.csdn.net/javazejian/article/details/72828483)<br />[彻底搞懂synchronized(从偏向锁到重量级锁)](https://www.cnblogs.com/kubidemanong/p/9520071.html)
 
 [下一篇：04-volatile.md](04-volatile.md)

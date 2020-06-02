@@ -25,7 +25,7 @@ Java 语言提供了一种稍弱的同步机制，即 volatile 变量，用来�
 
 - 缓存是分段的，一个段对应着一块存储空间，我们称之为缓存行，它是CPU缓存中可分配段最小存储单元。**当CPU看到一条读取内存的指令时，它会把内存地址传递给一级数据缓存，一级数据缓存会检查它是否有这个内存地址对应的缓存段，如果没有就把整个缓存段从内存（或更高一级的缓存）中加载进来**。注意，这里说的是一次加载整个缓存段，这就是上面提过的局部性原理
 
-上面说段锁总线，效率太低，最好段是使用多组缓存，但是他们段的行为看起来就像一组缓存，是一致的。缓存一致性协议就是为了做到这一点，**这类协议就是保证在多组缓存中的内容一致。**<br />缓存一致性协议有很多种，日常使用最多的是属于**嗅探**协议：<br />
+上面说段锁总线，效率太低，最好的是使用多组缓存，但是他们的行为看起来就像一组缓存，是一致的。缓存一致性协议就是为了做到这一点，**这类协议就是保证在多组缓存中的内容一致。**<br />缓存一致性协议有很多种，日常使用最多的是属于**嗅探**协议：<br />
 
 - **所有内存的传输是发生在一条共享的总线上的，而所有的处理器都能看到这条总线；**
 - **缓存本身是独立的，内存是共享的，所有的内存访问都要经过仲裁（同一个指令周期，只有一个CPU可以访问内存）**
@@ -100,7 +100,7 @@ class VolatileExample {
   - 在每个volatile读操作的后面插入一个LoadLoad屏障，禁止下面的普通读与volatile读重排序
   - 在每个volatile读操作的后面插入一个LoadStore屏障，禁止下面读普通写与volatile读重排序
 
-![image.png](https://cdn.nlark.com/yuque/0/2019/png/261655/1576653581528-83988d97-5d50-45b9-8f72-62b41773b01b.png#align=left&display=inline&height=461&name=image.png&originHeight=461&originWidth=747&size=80913&status=done&style=none&width=747)![image.png](https://cdn.nlark.com/yuque/0/2019/png/261655/1576653590957-9c5a34e8-b061-4341-a064-4d442b30ad67.png#align=left&display=inline&height=459&name=image.png&originHeight=459&originWidth=801&size=82658&status=done&style=none&width=801)
+![image.png](../99-picture/1576653581528-83988d97-5d50-45b9-8f72-62b41773b01b.png)![image.png](../99-picture/1576653590957-9c5a34e8-b061-4341-a064-4d442b30ad67.png)
 <a name="bVJVZ"></a>
 ## 使用场景
 

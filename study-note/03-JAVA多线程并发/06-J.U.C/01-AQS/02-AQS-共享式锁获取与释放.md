@@ -121,7 +121,7 @@ private void doReleaseShared() {
     }
 ```
 
-<br />该方法为共享锁能做到同时被多个线程持有的核心方法，下面我们来一一分析<br />![image.png](https://cdn.nlark.com/yuque/0/2019/png/261655/1571278522324-fd8b79e2-365a-4587-a2cb-97488029f45c.png#align=left&display=inline&height=68&name=image.png&originHeight=135&originWidth=932&size=182005&status=done&style=none&width=466)
+<br />该方法为共享锁能做到同时被多个线程持有的核心方法，下面我们来一一分析<br />![image.png](../../../99-picture/1571278522324-fd8b79e2-365a-4587-a2cb-97488029f45c.png)
 
 - 1) 该方法有几处调用？ 
 
@@ -174,7 +174,7 @@ else if (ws == 0 &&
 ```
 第一个if是，如果头节点状态为SIGNAL，说明后继节点挂起或准备挂起，那么，先CAS把头节点状态设为0，然后执行`**unparkSuccessor(h)**`**_唤醒距head最近的未被取消状态的节点_**<br />
 <br />第二个if比较难理解，首先是判断ws==0，我们想一下，**ws什么时候会为0**？一种是上面到情况，但是显然不会再走到**`else if`**里，排除，还有一种**是节点刚入队的时候，ws也是0**，因为有前置条件，**队列至少有两个节点**<br />下面来分析一下，假设一开始队列中有两个节点，**head和A，此时A的状态肯定是0**，如果接下来有**B入队**，然后**A获取到共享锁**，变成了head，那么此时，队列中有两个节点，且**`head(A)`**和B的状态都为0，那么就满足了else if的前半部分条件，就会接着执行`**compareAndSetWaitStatus(h, 0, Node.PROPAGATE)**`<br />`**compareAndSetWaitStatus(h, 0, Node.PROPAGATE)**`方法是个CAS方法，首先看下如果执行成功了，会发生什么，**`continue`**不会执行，逻辑继续往下执行，根据判断head是否易主，判断是否退出<br />如果**`compareAndSetWaitStatus(h, 0, Node.PROPAGATE)`**执行失败了，那么什么时候回执行失败？说明我们执行这个方法时，h的ws不是0了！<br />**那么为什么不是0？谁把h的ws修改了？**<br />记得在之前分析获取同步状态的时候，有个方法是`**shouldParkAfterFailedAcquire**`，该方法会把当前节点挂起，并把前置节点的ws设为`**SIGNAL**`，所以，明确了，B获取同步状态时，把A的ws设为了SIGNAL，所以**`compareAndSetWaitStatus(h, 0, Node.PROPAGATE)`**执行失败，然后执行`**continue**`，再次自旋，重复上面的操作<br />
-<br />![untitled.jpg](https://cdn.nlark.com/yuque/0/2019/jpeg/261655/1571625509273-3a7c140d-f835-4f04-8c08-36ff45f50007.jpeg#align=left&display=inline&height=940&name=untitled.jpg&originHeight=940&originWidth=706&size=71008&status=done&style=none&width=706)
+<br />![untitled.jpg](../../../99-picture/1571625509273-3a7c140d-f835-4f04-8c08-36ff45f50007.jpeg)
 
 
 [下一篇：03-Condition.md](03-Condition.md)

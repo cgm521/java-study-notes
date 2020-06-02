@@ -12,7 +12,7 @@ ReentrantReadWriteLock内部维护了一对相关的锁：**共享锁**(readLock
 
 <a name="OViIS"></a>
 # 数据结构和方法
-![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590504953421-be726a76-82c0-497a-b1ed-f2faa7e96c16.png#align=left&display=inline&height=436&margin=%5Bobject%20Object%5D&name=image.png&originHeight=436&originWidth=973&size=471304&status=done&style=none&width=973)<br />查看UML类图可知，
+![image.png](../../../99-picture/1590504953421-be726a76-82c0-497a-b1ed-f2faa7e96c16.png)<br />查看UML类图可知，
 
 1. ** ReentrantReadWriteLock**实现类**ReadWriteLock**接口。**ReadWriteLock**是一个读写锁接口，提供了获取读锁**readLock()**和获取写锁**writeLock()**接口
 1. **ReentrantReadWriteLock**内部有5个内部类：自定义同步器**Sync**，读锁**ReadLock**和写锁**WriteLock，**公平锁FairSync和非公平锁NofairSync；Sync继承自AQS，并有内部类HoldCounter和ThreadLocalHoldCounter来记录线程重入次数；ReadLock和WriteLock都实现Lock，内部持有Sync对象。所以都同步功能都是在Sync中实现，
@@ -327,6 +327,7 @@ protected final boolean tryReleaseShared(int unused) {
 
 
 > 引用：
+>
 > [https://www.jianshu.com/p/5aec3c3f8585](https://www.jianshu.com/p/5aec3c3f8585)
 > [http://cmsblogs.com/?p=2213](http://cmsblogs.com/?p=2213)
 

@@ -189,8 +189,5 @@ isHeldExclusively**
 > 上面每个方法默认实现都是throws UnsupportedOperationException，定义这些方法是使用AbstractQueuedSynchronizer的唯一途径。
 
 
-<br />
-<br />[**AQS-独占式锁获取&释放**](https://www.yuque.com/weijungu/sr03pz/fpv0p1)<br />[**AQS-共享式锁获取&释放**](https://www.yuque.com/weijungu/sr03pz/ob8ulg)
-
 
 [下一篇：01-AQS-独占式锁获取与释放.md](01-AQS-独占式锁获取与释放.md)

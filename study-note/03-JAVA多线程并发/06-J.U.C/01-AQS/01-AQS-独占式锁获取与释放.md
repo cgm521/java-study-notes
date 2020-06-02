@@ -2,7 +2,8 @@
 
 <a name="g1vko"></a>
 # acquire -- 获取同步状态-不响应中断
-![untitled.jpg](https://cdn.nlark.com/yuque/0/2019/jpeg/261655/1569245265433-79edbb17-68b2-4d47-b3bd-6b0a47ff241a.jpeg#align=left&display=inline&height=638&margin=%5Bobject%20Object%5D&name=untitled.jpg&originHeight=850&originWidth=624&size=71008&status=done&style=none&width=468)<br />acquire(int arg)方法为AQS提供的模版方法，该方法为独占式获取同步状态，但是对中断不响应<br />**其他线程尝试通过interrupt中断当前线程，当前线程不会立刻中断，也不会抛异常，只是记录一个中断标志，外部可通过isInterrupted方法，获取这个中断标志，然后做些什么**
+![untitled.jpg](../../../99-picture/1569245265433-79edbb17-68b2-4d47-b3bd-6b0a47ff241a.jpeg)
+<br />acquire(int arg)方法为AQS提供的模版方法，该方法为独占式获取同步状态，但是对中断不响应<br />**其他线程尝试通过interrupt中断当前线程，当前线程不会立刻中断，也不会抛异常，只是记录一个中断标志，外部可通过isInterrupted方法，获取这个中断标志，然后做些什么**
 ```java
 public final void acquire(int arg) {
     if (!tryAcquire(arg) &&
@@ -356,7 +357,7 @@ private void doAcquireInterruptibly(int arg)
 > - 清理被取消状态的节点，使其不再关联Thread，等待状态标为CANCELLED，并出队
 
 
-<br />**该方法的调用者有**<br />![image.png](https://cdn.nlark.com/yuque/0/2019/png/261655/1569498227582-5b8afb78-e794-4080-a3ff-5dec328deb69.png#align=left&display=inline&height=135&margin=%5Bobject%20Object%5D&name=image.png&originHeight=180&originWidth=697&size=233704&status=done&style=none&width=523)<br />**这些方法代码结果都很类似，for(;;)中执行，在finally中判断是否执行cancelAcquire**<br />**
+<br />**该方法的调用者有**<br />![image.png](../../../99-picture/1569498227582-5b8afb78-e794-4080-a3ff-5dec328deb69.png)<br />**这些方法代码结果都很类似，for(;;)中执行，在finally中判断是否执行cancelAcquire**<br />**
 > **cancelAcquire方法的主要作用是清除状态**
 > - node不再关联任何Thread
 > - node的等待状态设为CANCELLED
@@ -414,7 +415,7 @@ private void cancelAcquire(Node node) {
 
 <a name="1F1gK"></a>
 ### 场景一、node为tail
-![untitled.jpg](https://cdn.nlark.com/yuque/0/2019/jpeg/261655/1569553163137-df172332-3b15-4cec-b41a-7d711cbc5281.jpeg#align=left&display=inline&height=474&margin=%5Bobject%20Object%5D&name=untitled.jpg&originHeight=474&originWidth=510&size=71008&status=done&style=none&width=510)<br />结合代码：
+![untitled.jpg](../../../99-picture/1569553163137-df172332-3b15-4cec-b41a-7d711cbc5281.jpeg)<br />结合代码：
 
 - compareAndSetTail()方法将tail指向pred
 - compareAndSetNext()方法将pred的next指向null
@@ -422,7 +423,7 @@ private void cancelAcquire(Node node) {
 
 <a name="suXLr"></a>
 ### 场景二、node不是tail，也不是head后继节点
-![untitled.jpg](https://cdn.nlark.com/yuque/0/2019/jpeg/261655/1569578708327-2af5b3e9-d67b-438a-8264-61096ec55447.jpeg#align=left&display=inline&height=410&margin=%5Bobject%20Object%5D&name=untitled.jpg&originHeight=410&originWidth=890&size=71008&status=done&style=none&width=890)<br />结合代码
+![untitled.jpg](../../../99-picture/1569578708327-2af5b3e9-d67b-438a-8264-61096ec55447.jpeg)<br />结合代码
 
 - 1->2 compareAndSetNext()方法将pred的next指向successor
 > **注意：****cancelAcquire()方法只是操作了next指向，但是prev还是指向node节点，并且是可达的状态，不会被回收，那是什么时候取消prev的指向的呢？**
@@ -436,7 +437,7 @@ private void cancelAcquire(Node node) {
 
 <a name="munMn"></a>
 ### 场景三、node为head的后继节点
-**指针变动与场景二一致，但是unparkSuccessor方法中没有对队列做任何操作，那么node节点是在什么时候出队对呢？**<br />出队操作实际上是由unparkSuccessor**唤醒的线程unparkT执行的，注意看线程unparkT唤醒后做的事情**<br />![untitled.jpg](https://cdn.nlark.com/yuque/0/2019/jpeg/261655/1570613290033-a5791633-f145-4960-b153-cfbb495f6f66.jpeg#align=left&display=inline&height=520&margin=%5Bobject%20Object%5D&name=untitled.jpg&originHeight=520&originWidth=750&size=71008&status=done&style=none&width=750)<br />
+**指针变动与场景二一致，但是unparkSuccessor方法中没有对队列做任何操作，那么node节点是在什么时候出队对呢？**<br />出队操作实际上是由unparkSuccessor**唤醒的线程unparkT执行的，注意看线程unparkT唤醒后做的事情**<br />![untitled.jpg](../../../99-picture/1570613290033-a5791633-f145-4960-b153-cfbb495f6f66.jpeg)<br />
 
 ```java
 for (;;) {

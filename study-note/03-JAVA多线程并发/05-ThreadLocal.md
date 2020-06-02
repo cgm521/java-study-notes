@@ -224,15 +224,19 @@ public class ThreadLocalTest {
 
 - 第一次执行把17行注释，每次线程执行完后不会移除ThreadLocalMap中的Entry，就导致线程任务执行完成之后，还在持有ThreadLocalMap的引用，ThreadLocalMap里的Entry数组中的value一直强引用着list对象，导致线程数量执行较多的时候，堆内存就会急剧增加，导致OOM
 
-![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590675160190-e2d00d02-b377-49cb-8fc0-14571bccbef2.png#align=left&display=inline&height=212&margin=%5Bobject%20Object%5D&name=image.png&originHeight=276&originWidth=962&size=431032&status=done&style=none&width=744)<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590675137430-7b62ced5-0dc9-438f-8458-9f76ff57ba48.png#align=left&display=inline&height=750&margin=%5Bobject%20Object%5D&name=image.png&originHeight=750&originWidth=900&size=232368&status=done&style=none&width=900)<br />
+![image.png](../99-picture/1590675160190-e2d00d02-b377-49cb-8fc0-14571bccbef2.png)<br />![image.png](../99-picture/1590675137430-7b62ced5-0dc9-438f-8458-9f76ff57ba48.png)<br />
 
 - 第二次执行是把17行注释去掉，每次线程任务执行完成后，都会调用ThreadLocal的remove方法移除Thread中的ThreadLOcalMap对ThreadLocal的引用，并清理value值，因为此时value的可以为null，在remove方法内会调用expungeStaleEntry去掉对value的引用，堆内存就不会一直增加，就不会导致OOM
 
 
 <br />
-<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590675305341-709e0b42-ac01-43cb-97a6-7923697ff8ea.png#align=left&display=inline&height=273&margin=%5Bobject%20Object%5D&name=image.png&originHeight=273&originWidth=625&size=216148&status=done&style=none&width=625)<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590675328866-63339ca3-c505-4d14-9ac2-74b209b5b3ce.png#align=left&display=inline&height=750&margin=%5Bobject%20Object%5D&name=image.png&originHeight=750&originWidth=900&size=271657&status=done&style=none&width=900)<br />
-<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590718471742-39a44c31-ab1f-482f-b38b-384027f0f0bd.png#align=left&display=inline&height=353&margin=%5Bobject%20Object%5D&name=image.png&originHeight=353&originWidth=780&size=64391&status=done&style=none&width=780)<br />
+<br />
 
+![image.png](../99-picture/1590675305341-709e0b42-ac01-43cb-97a6-7923697ff8ea.png)<br />![image.png](../99-picture/1590675328866-63339ca3-c505-4d14-9ac2-74b209b5b3ce.png)<br />
+<br />![image.png](../99-picture/1590718471742-39a44c31-ab1f-482f-b38b-384027f0f0bd.png)<br />
+
+> 引用
+>
 > [https://www.jianshu.com/p/ee8c9dccc953](https://www.jianshu.com/p/ee8c9dccc953)
 > [https://juejin.im/post/5d9d74fa6fb9a04e320a56db](https://juejin.im/post/5d9d74fa6fb9a04e320a56db)
 > [http://cmsblogs.com/?p=2442](http://cmsblogs.com/?p=2442)

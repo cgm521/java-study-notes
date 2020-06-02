@@ -18,7 +18,7 @@ Condition为JUC提供了等待/通知方法，类似与监视器锁的Object.wai
 
 - 1.**初始化状态：**AQS同步队列有3个节点，head节点线程为T1，Condition条件队列有1个节点(也可以没有)
 
-![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1587549872025-9f03235d-fb7b-4bf4-bc0f-436bd9780866.png#align=left&display=inline&height=492&margin=%5Bobject%20Object%5D&name=image.png&originHeight=492&originWidth=640&size=77268&status=done&style=none&width=640)<br />
+![image.png](../../../99-picture/1587549872025-9f03235d-fb7b-4bf4-bc0f-436bd9780866.png)<br />
 
 - 2.**节点1执行await**：
   - 节点1添加到条件队列队尾，设为lastWaiter
@@ -261,7 +261,7 @@ private void unlinkCancelledWaiters() {
 
 <br />1.进入await()时必须是已经持有了锁<br />2.离开await()时同样必须是已经持有了锁<br />3.调用await()会使得当前线程被封装成Node扔进条件队列，然后释放所持有的锁<br />4.释放锁后，当前线程将在condition queue中被挂起，等待signal或者中断<br />5.线程被唤醒后会将会离开condition queue进入sync queue中进行抢锁<br />6.若在线程抢到锁之前发生过中断，则根据中断发生在signal之前还是之后记录中断模式<br />7.线程在抢到锁后进行善后工作（离开condition queue, 处理中断异常）<br />8.线程已经持有了锁，从await()方法返回
 <a name="CxHZE"></a>
-## ![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1587719252379-c309b569-208b-4359-8fd3-0ff5f218223b.png#align=left&display=inline&height=180&margin=%5Bobject%20Object%5D&name=image.png&originHeight=180&originWidth=800&size=121315&status=done&style=none&width=800)
+## ![image.png](../../../99-picture/1587719252379-c309b569-208b-4359-8fd3-0ff5f218223b.png)
 在这一过程中我们尤其要关注中断，如前面所说，**中断和signal所起到的作用都是将线程从`condition queue`中移除，加入到`sync queue`中去争锁，所不同的是，signal方法被认为是正常唤醒线程，中断方法被认为是非正常唤醒线程，如果中断发生在signal之前，则我们在最终返回时，应当抛出`InterruptedException`；如果中断发生在signal之后，我们就认为线程本身已经被正常唤醒了，这个中断来的太晚了，我们直接忽略它，并在`await()`返回时再自我中断一下，这种做法相当于将中断推迟至`await()`返回时再发生。**
 <a name="T3WjY"></a>
 ## signal
@@ -514,7 +514,8 @@ public final boolean awaitUntil(Date deadline)
 与await(long nanosTimeout)和await(long time, TimeUnit unit)代码基本一致，入参的deadline，等价与await(long nanosTimeout)和await(long time, TimeUnit unit)中的**deadline**，代表着到哪个时间点超时；还有就是这个方法中没有使用_spinForTimeoutThreshold_进行自旋优化，一般使用该方法都是较长时间的等待<br />
 <br />
 <br />
-<br />参考：<br />[https://segmentfault.com/a/1190000016462281](https://segmentfault.com/a/1190000016462281)<br />[https://juejin.im/post/5def445af265da33c4280639#heading-4](https://juejin.im/post/5def445af265da33c4280639#heading-4)<br />[https://blog.csdn.net/itcats_cn/article/details/81280893](https://blog.csdn.net/itcats_cn/article/details/81280893)
+<br />
+> 参考：<br />[https://segmentfault.com/a/1190000016462281](https://segmentfault.com/a/1190000016462281)<br />[https://juejin.im/post/5def445af265da33c4280639#heading-4](https://juejin.im/post/5def445af265da33c4280639#heading-4)<br />[https://blog.csdn.net/itcats_cn/article/details/81280893](https://blog.csdn.net/itcats_cn/article/details/81280893)
 
 
 [下一篇：JUC锁](../02-JUC锁/00-JUC锁.md)
