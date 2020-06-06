@@ -27,11 +27,11 @@ public class ThreadLocalTest {
     }
 }
 ```
-执行结果：<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590666144375-a38092ed-5529-4cdc-9295-793c2416770a.png#align=left&display=inline&height=227&margin=%5Bobject%20Object%5D&name=image.png&originHeight=227&originWidth=698&size=136986&status=done&style=none&width=698)<br />每个线程调用的都是同一个ThreadLocal对象，但是get的结果却看似和ThreadLocal无关，各个线程get出来的值像是相互隔离开的一样，这是为什么呢？<br />
+执行结果：<br />![image.png](../99-picture/1590666144375-a38092ed-5529-4cdc-9295-793c2416770a.png)<br />每个线程调用的都是同一个ThreadLocal对象，但是get的结果却看似和ThreadLocal无关，各个线程get出来的值像是相互隔离开的一样，这是为什么呢？<br />
 
 <a name="u2kty"></a>
 # 概述
-ThreadLocal提供一个线程局部变量，访问某个变量的每个线程都能拥有自己的一个局部变量。ThreadLocal可以在多线程环境下保证局部变量的安全<br />ThreadLocal内部有个**内部类ThreadLocalMap**，ThreadLocalMap内部有个内部类Entry，Entry存储着一对键值对，key是ThreadLocal类型弱引用，value是Object类型数据。<br />先看一张图<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590667749212-7344172b-ff4f-47d2-8429-93280b0d3812.png#align=left&display=inline&height=496&margin=%5Bobject%20Object%5D&name=image.png&originHeight=496&originWidth=1011&size=120631&status=done&style=none&width=1011)<br />由上图可以看出，在Thread中持有一个ThreadLocalMap，ThreadLocalMap有属性table是个Entry数组，Entry的key是ThreadLocal类型，value是Object类型。也就是一个ThreadLocalMap可以持有多个ThreadLocal。也就是一个Thread包含一个ThreadLocalMap，包含多个ThreadLocal，**是Thread包含ThreadLocal**<br />![image.png](https://cdn.nlark.com/yuque/0/2020/png/261655/1590667772709-5668146b-6782-4ef4-ab61-a4609fb2aabc.png#align=left&display=inline&height=481&margin=%5Bobject%20Object%5D&name=image.png&originHeight=481&originWidth=684&size=53729&status=done&style=none&width=684)
+ThreadLocal提供一个线程局部变量，访问某个变量的每个线程都能拥有自己的一个局部变量。ThreadLocal可以在多线程环境下保证局部变量的安全<br />ThreadLocal内部有个**内部类ThreadLocalMap**，ThreadLocalMap内部有个内部类Entry，Entry存储着一对键值对，key是ThreadLocal类型弱引用，value是Object类型数据。<br />先看一张图<br />![image.png](../99-picture/1590667749212-7344172b-ff4f-47d2-8429-93280b0d3812.png)<br />由上图可以看出，在Thread中持有一个ThreadLocalMap，ThreadLocalMap有属性table是个Entry数组，Entry的key是ThreadLocal类型，value是Object类型。也就是一个ThreadLocalMap可以持有多个ThreadLocal。也就是一个Thread包含一个ThreadLocalMap，包含多个ThreadLocal，**是Thread包含ThreadLocal**<br />![image.png](../99-picture/1590667772709-5668146b-6782-4ef4-ab61-a4609fb2aabc.png)
 <a name="Y9xiu"></a>
 # 源码解析
 <a name="rQFE1"></a>
