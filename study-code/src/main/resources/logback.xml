@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="myApp" value="study-code"/>
+    <contextName>${myApp}</contextName>
+
+    <!-- ConsoleAppender 控制台输出日志 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!--日志输出格式-->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+    </appender>
+    <!-- 滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 RollingFileAppender -->
+    <appender name="debug_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 追加方式记录日志 -->
+        <Append>true</Append>
+        <File>logs/log_debug.log</File>
+        <!-- 日志级别等于配置级别，过滤器会根据onMath 和 onMismatch接收或拒绝日志。 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 设置过滤级别 -->
+            <level>info</level>
+            <!-- 用于配置符合过滤条件的操作  ACCEPT接受-->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 用于配置不符合过滤条件的操作 DENY 拒绝-->
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
+        <!-- 最常用的滚动策略，它根据时间来制定滚动策略.既负责滚动也负责出发滚动 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--归档文件  日志输出位置 可相对、和绝对路径 -->
+            <fileNamePattern>logs/log-debug-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <!-- 日志文件的格式 -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--name 为java包-->
+    <logger name="com.cgm.example"/>
+
+    <!--<logger name="com.example.controller.userController" level="info" additivity="false">
+        <appender-ref ref="console"/>
+    </logger>-->
+
+    <!--打印级别-->
+    <root level="debug">
+        <appender-ref ref="console"/>
+        <appender-ref ref="debug_log"/>
+    </root>
+</configuration>

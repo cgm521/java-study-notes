@@ -235,6 +235,27 @@ public class ThreadLocalTest {
 ![image.png](../99-picture/1590675305341-709e0b42-ac01-43cb-97a6-7923697ff8ea.png)<br />![image.png](../99-picture/1590675328866-63339ca3-c505-4d14-9ac2-74b209b5b3ce.png)<br />
 <br />![image.png](../99-picture/1590718471742-39a44c31-ab1f-482f-b38b-384027f0f0bd.png)<br />
 
+**ThreadLocal的使用场景**
+-  数据库连接：在多线程中，如果使用懒汉式的单例模式创建Connection对象，由于该对象是共享的，
+        那么必须要使用同步方法保证线程安全，这样当一个线程在连接数据库时，那么另外一个线程只能等待。
+        这样就造成性能降低。
+        如果改为哪里要连接数据库就来进行连接，那么就会频繁的对数据库进行连接，性能还是不高。
+        这时使用ThreadLocal就可以既可以保证线程安全又可以让性能不会太低。
+        但是ThreadLocal的缺点时占用了较多的空间。测试类[ConnectionTest.java](../../../java-study-notes/study-code/src/test/java/com/java/study/studycode/dao/ConnectionTest.java)  每个线程获取到数据库链接都是同一个
+``
+Dao.insert()-->pool-1-thread-1com.mysql.cj.jdbc.ConnectionImpl@801989d
+Dao.insert()-->pool-1-thread-2com.mysql.cj.jdbc.ConnectionImpl@8c8fc37
+Dao.insert()-->pool-1-thread-3com.mysql.cj.jdbc.ConnectionImpl@2e823a30
+Dao.select()-->pool-1-thread-1com.mysql.cj.jdbc.ConnectionImpl@801989d
+Dao.select()-->pool-1-thread-2com.mysql.cj.jdbc.ConnectionImpl@8c8fc37
+Dao.update()-->pool-1-thread-1com.mysql.cj.jdbc.ConnectionImpl@801989d
+Dao.select()-->pool-1-thread-3com.mysql.cj.jdbc.ConnectionImpl@2e823a30
+Dao.delete()-->pool-1-thread-1com.mysql.cj.jdbc.ConnectionImpl@801989d
+Dao.update()-->pool-1-thread-2com.mysql.cj.jdbc.ConnectionImpl@8c8fc37
+Dao.delete()-->pool-1-thread-2com.mysql.cj.jdbc.ConnectionImpl@8c8fc37
+Dao.update()-->pool-1-thread-3com.mysql.cj.jdbc.ConnectionImpl@2e823a30
+Dao.delete()-->pool-1-thread-3com.mysql.cj.jdbc.ConnectionImpl@2e823a30
+``
 > 引用
 >
 > [https://www.jianshu.com/p/ee8c9dccc953](https://www.jianshu.com/p/ee8c9dccc953)
