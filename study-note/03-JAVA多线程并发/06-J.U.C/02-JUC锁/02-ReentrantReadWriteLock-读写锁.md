@@ -20,6 +20,7 @@ ReentrantReadWriteLock内部维护了一对相关的锁：**共享锁**(readLock
 
 <br />
 <br />Sync方法如下
+
 ```java
 abstract static class Sync extends AbstractQueuedSynchronizer {
     private static final long serialVersionUID = 6317671515068378041L;
@@ -224,6 +225,7 @@ private transient HoldCounter cachedHoldCounter;
 
 <br />
 <br />我们接着返回lock方法，如果读线程需要阻塞或者获取线程数超过最大值或者CAS设置同步状态失败，则会调用fullTryAcquireShared方法，<br />`fullTryAcquireShared`是获取读锁的完整版本，用于处理CAS失败、阻塞等待和重入读问题。相对于`tryAcquireShared`来说，执行流程上都差不多，不同的是，它增加了重试机制和对“持有读锁数的延迟读取”的处理。<br />
+
 ```java
 final int fullTryAcquireShared(Thread current) {
     HoldCounter rh = null;
