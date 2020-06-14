@@ -218,10 +218,10 @@ private transient HoldCounter cachedHoldCounter;
 ```
 **cachedHoldCounter**是HoldCounter类型的变量，**readHolds**是HoldCounter类型的线程本地变量，我们来看一下HoldCounter的代码<br />HoldCounter内部有两个变量，count代表当前线程获取读锁的次数，tid代表当前线程的线程id，<br />通过ThreadLocalHoldCounter把HoldCounter和线程绑定，HoldCounter就是绑定了线程的一个计数器。<br />为什么使用线程id，而没有使用直接记录线程？**是为了避免HoldCounter和ThreadLocal互相绑定而GC难以释放它们**<br />
 
-- **firstReader：**是记录第一个获取读锁的线程
+- **firstReader：** 是记录第一个获取读锁的线程
 - **firstReaderHoldCount：**是记录**firstReade**线程获取读锁的次数
-- **cachedHoldCounter：**记录的是最近一次获取读锁的线程计数，避免频繁的ThreadLocal.get()，提高性能
-- **readHolds：**是个线程本地变量，记录着每个线程的线程计数
+- **cachedHoldCounter：** 记录的是最近一次获取读锁的线程计数，避免频繁的ThreadLocal.get()，提高性能
+- **readHolds：** 是个线程本地变量，记录着每个线程的线程计数
 
 <br />
 <br />我们接着返回lock方法，如果读线程需要阻塞或者获取线程数超过最大值或者CAS设置同步状态失败，则会调用fullTryAcquireShared方法，<br />`fullTryAcquireShared`是获取读锁的完整版本，用于处理CAS失败、阻塞等待和重入读问题。相对于`tryAcquireShared`来说，执行流程上都差不多，不同的是，它增加了重试机制和对“持有读锁数的延迟读取”的处理。<br />
