@@ -1,6 +1,6 @@
 package com.java.study.studycode.disruptor;
 
-import com.example.dailypractice.disruptor.obj.LongObj;
+import com.java.study.studycode.disruptor.obj.LongObj;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;

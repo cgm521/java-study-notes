@@ -1,6 +1,6 @@
 package com.java.study.studycode.disruptor;
 
-import com.example.dailypractice.disruptor.obj.LongObj;
+import com.java.study.studycode.disruptor.obj.LongObj;
 import com.lmax.disruptor.RingBuffer;
 
 import java.util.concurrent.atomic.AtomicLong;
