@@ -242,7 +242,7 @@ public class ThreadLocalTest {
         如果改为哪里要连接数据库就来进行连接，那么就会频繁的对数据库进行连接，性能还是不高。
         这时使用ThreadLocal就可以既可以保证线程安全又可以让性能不会太低。
         但是ThreadLocal的缺点时占用了较多的空间。测试类[ConnectionTest.java](../../../java-study-notes/study-code/src/test/java/com/java/study/studycode/dao/ConnectionTest.java)  每个线程获取到数据库链接都是同一个
-``
+```
 Dao.insert()-->pool-1-thread-1com.mysql.cj.jdbc.ConnectionImpl@801989d
 Dao.insert()-->pool-1-thread-2com.mysql.cj.jdbc.ConnectionImpl@8c8fc37
 Dao.insert()-->pool-1-thread-3com.mysql.cj.jdbc.ConnectionImpl@2e823a30
@@ -255,7 +255,7 @@ Dao.update()-->pool-1-thread-2com.mysql.cj.jdbc.ConnectionImpl@8c8fc37
 Dao.delete()-->pool-1-thread-2com.mysql.cj.jdbc.ConnectionImpl@8c8fc37
 Dao.update()-->pool-1-thread-3com.mysql.cj.jdbc.ConnectionImpl@2e823a30
 Dao.delete()-->pool-1-thread-3com.mysql.cj.jdbc.ConnectionImpl@2e823a30
-``
+```
 > 引用
 >
 > [https://www.jianshu.com/p/ee8c9dccc953](https://www.jianshu.com/p/ee8c9dccc953)
