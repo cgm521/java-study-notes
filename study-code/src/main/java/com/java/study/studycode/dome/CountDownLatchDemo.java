@@ -1,5 +1,7 @@
 package com.java.study.studycode.dome;
 
+import org.junit.Test;
+
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -23,26 +25,33 @@ public class CountDownLatchDemo {
         doneLatch.await();
         System.out.println(Thread.currentThread().getName() + "-" + "main方法 3333");
     }
-}
 
-class Work implements Runnable {
-    CountDownLatch startLatch;
-    CountDownLatch doneLatch;
-
-    public Work(CountDownLatch startLatch, CountDownLatch doneLatch) {
-        this.startLatch = startLatch;
-        this.doneLatch = doneLatch;
+    @Test
+    public  void test() {
+        int i = Math.abs("test-consumer-group".hashCode()) % 50;
+        System.out.println(i);
     }
+    static class Work implements Runnable {
+        CountDownLatch startLatch;
+        CountDownLatch doneLatch;
 
-    @Override
-    public void run() {
-        try {
-            startLatch.await();
-            System.out.println(Thread.currentThread().getName()+"-"+"doSomething 99999");
-            doneLatch.countDown();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        Work(CountDownLatch startLatch, CountDownLatch doneLatch) {
+            this.startLatch = startLatch;
+            this.doneLatch = doneLatch;
         }
 
+        @Override
+        public void run() {
+            try {
+                startLatch.await();
+                startLatch.await();
+                System.out.println(Thread.currentThread().getName()+"-"+"doSomething 99999");
+                doneLatch.countDown();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
+
 }

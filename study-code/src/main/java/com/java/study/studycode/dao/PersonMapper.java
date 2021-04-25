@@ -43,4 +43,11 @@ public interface PersonMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(Person record);
+
+    /**
+     * 批量插入，并把id设置到list对象中
+     * @param list
+     * @return
+     */
+    int batchInsert(List<Person> list);
 }

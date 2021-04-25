@@ -1,9 +1,12 @@
 package com.java.study.studycode.entry;
 
+import com.java.study.studycode.enums.PersonStatusEnum;
 import lombok.Data;
+import lombok.ToString;
 
 import java.io.Serializable;
 @Data
+@ToString
 public class Person implements Serializable {
     /**
      *
@@ -40,4 +43,5 @@ public class Person implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
+    private PersonStatusEnum status;
 }
