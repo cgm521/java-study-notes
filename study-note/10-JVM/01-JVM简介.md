@@ -1,5 +1,5 @@
 # 一、JVM原理
-![](https://cdn.nlark.com/yuque/0/2020/webp/261655/1603036190868-cb5e1940-c248-46bc-801e-7ab92d9a8b61.webp#align=left&display=inline&height=570&margin=%5Bobject%20Object%5D&originHeight=570&originWidth=696&size=0&status=done&style=none&width=696)
+![](../99-picture/164d5931985e6f40.png)
 java编译器只要面向JVM，生成JVM能理解的字节码文件，Java源文件经过编译成字节码程序，通过JVM将每一条指令翻译成不同平台机器码，通过特定平台运行。
 # 二、JVM运行时数据区
 
