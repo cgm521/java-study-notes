@@ -9,7 +9,7 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="age" jdbcType="INTEGER" property="age"/>
-    <result column="status" jdbcType="VARCHAR" property="status" typeHandler="DBEnumTypeHandler"/>
+    <result column="status" jdbcType="VARCHAR" property="status" typeHandler="com.java.study.studycode.dao.DBEnumTypeHandler"/>
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     <!--
