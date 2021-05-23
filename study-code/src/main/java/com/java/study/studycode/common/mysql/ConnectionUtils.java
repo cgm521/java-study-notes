@@ -2,6 +2,7 @@ package com.java.study.studycode.common.mysql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -45,7 +46,9 @@ public class ConnectionUtils {
             }
         }
     }
-    public static void main(String[] args) {
-        System.out.println(getConnection());
+    public static void main(String[] args) throws SQLException {
+        PreparedStatement ps = getConnection().prepareStatement("");
+        ps.setInt(1, 1);
+
     }
 }
