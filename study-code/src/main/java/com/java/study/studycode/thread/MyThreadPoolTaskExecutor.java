@@ -1,9 +1,11 @@
 package com.java.study.studycode.thread;
 
+import org.junit.Test;
 import org.slf4j.MDC;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -51,5 +53,18 @@ class MyThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
         });
 
         executor.shutdown();
+    }
+
+    @Test
+    public void test2() {
+
+        // 核心线程1，阻塞队列Integer.MAX_VALUE，阻塞队列过长，会OOM
+        Executors.newSingleThreadExecutor();
+        // 核心线程0，最大线程Integer.MAX_VALUE，线程会频繁销毁
+        Executors.newCachedThreadPool();
+        // 阻塞队列Integer.MAX_VALUE，阻塞队列过长，会OOM
+        Executors.newFixedThreadPool(1);
+        //
+        Executors.newScheduledThreadPool(1);
     }
 }

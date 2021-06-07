@@ -24,19 +24,20 @@ public class CyclicBarrierDemo {
             thread.setName("第" + i + "人");
             thread.start();
             threads.add(thread);
-//            System.out.println(cyclicBarrier.getNumberWaiting());
-//            if (cyclicBarrier.getParties() == 0) {
+            System.out.println(cyclicBarrier.getNumberWaiting());
+//            if (cyclicBarrier.getNumberWaiting()==3) {
+//                thread.interrupt();
+//            }
+//            if (cyclicBarrier.getParties() == 1) {
 //                cyclicBarrier.reset();
 //            }
         }
-        ou:
         for (Thread thread : threads) {
             thread.join();
-            break ou;
         }
-        System.out.println();
-        ConcurrentSkipListMap<String,String> map = new ConcurrentSkipListMap<String,String>();
-        map.put("", "");
+//        System.out.println();
+//        ConcurrentSkipListMap<String,String> map = new ConcurrentSkipListMap<String,String>();
+//        map.put("", "");
     }
 }
 
@@ -49,10 +50,12 @@ class BarrierWork implements Runnable {
 
     @Override
     public void run() {
-//        System.out.println(Thread.currentThread().getName() + "-" + "start await,count:" + cyclicBarrier.getNumberWaiting());
+        System.out.println(Thread.currentThread().getName() + "-" + "start await,count:" + cyclicBarrier.getNumberWaiting());
         try {
+
             System.out.println(Thread.currentThread().getName() + "上车了");
-            cyclicBarrier.await();
+            int await = cyclicBarrier.await();
+            System.out.println(Thread.currentThread().getName() + " : " + await);
         } catch (InterruptedException | BrokenBarrierException e) {
             e.printStackTrace();
         }
