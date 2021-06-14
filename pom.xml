@@ -16,6 +16,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>study-code</module>
+        <module>spring-demo-study</module>
     </modules>
     <properties>
         <java.version>1.8</java.version>
