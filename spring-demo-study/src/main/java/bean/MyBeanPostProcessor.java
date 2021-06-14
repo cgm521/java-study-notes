@@ -13,7 +13,7 @@ public class MyBeanPostProcessor implements BeanPostProcessor {
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         System.out.println(">>>《7、初始化前置处理》>>>MyBeanPostProcessor##BeforeInitialization>>>" + beanName);
-        return null;
+        return bean;
     }
 // 8、初始化
     @Override

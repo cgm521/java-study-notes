@@ -16,7 +16,9 @@ public class Test {
         ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
         UserInfo userInfo = (UserInfo) applicationContext.getBean("A");
         System.out.println(userInfo.getUserInfo("1"));
+        Object comOrder = applicationContext.getBean("comOrder");
 
+        Object comOrder2 = applicationContext.getBean("comOrder");
         applicationContext.getBeanFactory().destroySingletons();
         System.out.println("销毁");
     }
