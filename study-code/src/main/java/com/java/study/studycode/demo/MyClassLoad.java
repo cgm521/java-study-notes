@@ -36,7 +36,8 @@ public class MyClassLoad extends ClassLoader {
     }
     public static void main(String[] args) {
         try {
-            Class<?> aClass = new MyClassLoad().findClass("Hello");
+            Class<?> aClass = new MyClassLoad().loadClass("Hello");
+//            Class<?> aClass = new MyClassLoad().findClass("Hello");
             Object hello = aClass.newInstance();
             Method method = aClass.getMethod("hello");
             method.invoke(hello);

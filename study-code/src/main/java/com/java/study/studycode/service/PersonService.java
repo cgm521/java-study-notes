@@ -1,6 +1,6 @@
 package com.java.study.studycode.service;
 
-import com.java.study.studycode.dao.PersonMapper;
+import com.java.study.studycode.mapper.PersonMapper;
 import com.java.study.studycode.entry.Person;
 import org.springframework.stereotype.Service;
 

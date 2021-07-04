@@ -1,4 +1,4 @@
-package com.java.study.studycode.dao;
+package com.java.study.studycode.mapper;
 
 import com.java.study.studycode.entry.Person;
 import java.util.List;

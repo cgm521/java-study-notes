@@ -3,11 +3,11 @@ package com.java.study.studycode.dao;
 import com.google.common.collect.Lists;
 import com.java.study.studycode.BaseTest;
 import com.java.study.studycode.entry.Person;
+import com.java.study.studycode.mapper.PersonMapper;
 import org.junit.Test;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @Author:wb-cgm503374
