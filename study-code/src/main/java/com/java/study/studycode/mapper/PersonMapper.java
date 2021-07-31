@@ -50,4 +50,6 @@ public interface PersonMapper {
      * @return
      */
     int batchInsert(List<Person> list);
+
+    Boolean check();
 }

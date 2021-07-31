@@ -71,4 +71,8 @@
     select id, `name`, age
     from person
   </select>
+
+  <select id="check" resultType="java.lang.Boolean">
+    select count(1) from person
+  </select>
 </mapper>
